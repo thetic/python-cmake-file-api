@@ -30,7 +30,15 @@ class CMakeGenerator(object):
 
 
 class CMakeVersion(object):
-    def __init__(self, major: int, minor: int, patch: int, string: str, suffix: str, isDirty: bool):
+    def __init__(
+        self,
+        major: int,
+        minor: int,
+        patch: int,
+        string: str,
+        suffix: str,
+        isDirty: bool,
+    ):
         self.major = major
         self.minor = minor
         self.patch = patch
@@ -49,7 +57,10 @@ class CMakeVersion(object):
         return cls(major, minor, patch, string, suffix, isDirty)
 
     def __repr__(self) -> str:
-        return "{}(major={}, minor={}, patch={}, string='{}', suffix='{}', isDirty={})".format(
+        return (
+            "{}(major={}, minor={}, patch={}, "
+            "string='{}', suffix='{}', isDirty={})"
+        ).format(
             type(self).__name__,
             self.major,
             self.minor,
@@ -90,7 +101,12 @@ class CMakePaths(object):
 class CMakeInfo(object):
     __slots__ = ("version", "paths", "generator")
 
-    def __init__(self, version: CMakeVersion, paths: CMakePaths, generator: CMakeGenerator):
+    def __init__(
+        self,
+        version: CMakeVersion,
+        paths: CMakePaths,
+        generator: CMakeGenerator,
+    ):
         self.version = version
         self.paths = paths
         self.generator = generator
@@ -114,8 +130,12 @@ class CMakeInfo(object):
 class CMakeReply(object):
     __slots__ = ("stateless", "stateful", "unknowns")
 
-    def __init__(self, stateless: Dict[Tuple[ObjectKind, int], CMakeReplyFileReferenceV1],
-                 stateful: Dict[str, Dict], unknowns: List[str]):
+    def __init__(
+        self,
+        stateless: Dict[Tuple[ObjectKind, int], CMakeReplyFileReferenceV1],
+        stateful: Dict[str, Dict],
+        unknowns: List[str],
+    ):
         self.stateless = stateless
         self.stateful = stateful
         self.unknowns = unknowns
@@ -131,8 +151,12 @@ class CMakeReply(object):
                 continue
             stateless_match = re.match(r"([a-zA-Z0-9]+)-v([0-9]+)", k)
             if stateless_match:
-                kind, version = ObjectKind(stateless_match.group(1)), int(stateless_match.group(2))
-                stateless[(kind, version)] = CMakeReplyFileReferenceV1.from_dict(v)
+                kind, version = ObjectKind(stateless_match.group(1)), int(
+                    stateless_match.group(2)
+                )
+                stateless[
+                    (kind, version)
+                ] = CMakeReplyFileReferenceV1.from_dict(v)
             elif re.match(r"client-[a-zA-Z0-9]+", k):
                 stateful[k] = v
             else:
@@ -144,7 +168,12 @@ class CMakeReply(object):
 class CMakeReplyFileV1(object):
     __slots__ = ("cmake", "objects", "reply")
 
-    def __init__(self, cmake: CMakeInfo, objects: List[CMakeReplyFileReferenceV1], reply: CMakeReply):
+    def __init__(
+        self,
+        cmake: CMakeInfo,
+        objects: List[CMakeReplyFileReferenceV1],
+        reply: CMakeReply,
+    ):
         self.cmake = cmake
         self.objects = objects
         self.reply = reply
@@ -152,7 +181,9 @@ class CMakeReplyFileV1(object):
     @classmethod
     def from_dict(cls, dikt: Dict) -> "CMakeReplyFileV1":
         cmake = CMakeInfo.from_dict(dikt["cmake"])
-        objects = list(CMakeReplyFileReferenceV1.from_dict(do) for do in dikt["objects"])
+        objects = list(
+            CMakeReplyFileReferenceV1.from_dict(do) for do in dikt["objects"]
+        )
         reply = CMakeReply.from_dict(dikt["reply"])
         return cls(cmake, objects, reply)
 

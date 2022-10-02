@@ -6,7 +6,9 @@ from cmake_file_api.kinds.common import VersionMajorMinor
 
 
 class CMakeReplyFileReferenceV1(object):
-    def __init__(self, kind: ObjectKind, version: VersionMajorMinor, jsonFile: Path):
+    def __init__(
+        self, kind: ObjectKind, version: VersionMajorMinor, jsonFile: Path
+    ):
         self.kind = kind
         self.version = version
         self.jsonFile = jsonFile

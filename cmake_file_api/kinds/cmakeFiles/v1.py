@@ -2,21 +2,30 @@ import json
 from pathlib import Path
 from typing import Dict, List, Optional
 
-from cmake_file_api.kinds.common import CMakeSourceBuildPaths, VersionMajorMinor
+from cmake_file_api.kinds.common import (
+    CMakeSourceBuildPaths,
+    VersionMajorMinor,
+)
 from cmake_file_api.kinds.kind import ObjectKind
 
 
 class CMakeFilesInput(object):
     __slots__ = ("path", "isGenerator", "isExternal", "isCMake")
 
-    def __init__(self, path: Path, isGenerator: Optional[bool], isExternal: Optional[bool], isCMake: Optional[bool]):
+    def __init__(
+        self,
+        path: Path,
+        isGenerator: Optional[bool],
+        isExternal: Optional[bool],
+        isCMake: Optional[bool],
+    ):
         self.path = path
         self.isGenerator = isGenerator
         self.isExternal = isExternal
         self.isCMake = isCMake
 
     @classmethod
-    def from_dict(cls, dikt: Dict) -> "CMakeFileInput":
+    def from_dict(cls, dikt: Dict) -> "CMakeFilesInput":
         path = Path(dikt["path"])
         isGenerator = dikt.get("isGenerator")
         isExternal = dikt.get("isExternal")
@@ -38,20 +47,25 @@ class CMakeFilesV1(object):
 
     __slots__ = ("version", "paths", "inputs")
 
-    def __init__(self, version: VersionMajorMinor, paths: CMakeSourceBuildPaths, inputs: List[CMakeFilesInput]):
+    def __init__(
+        self,
+        version: VersionMajorMinor,
+        paths: CMakeSourceBuildPaths,
+        inputs: List[CMakeFilesInput],
+    ):
         self.version = version
         self.paths = paths
         self.inputs = inputs
 
     @classmethod
-    def from_dict(cls, dikt: Dict, reply_path: Path) -> "CmakeFilesV2":
+    def from_dict(cls, dikt: Dict, reply_path: Path) -> "CMakeFilesV1":
         version = VersionMajorMinor.from_dict(dikt["version"])
         paths = CMakeSourceBuildPaths.from_dict(dikt["paths"])
         inputs = list(CMakeFilesInput.from_dict(cmi) for cmi in dikt["inputs"])
         return cls(version, paths, inputs)
 
     @classmethod
-    def from_path(cls, path: Path, reply_path: Path) -> "CmakeFilesV2":
+    def from_path(cls, path: Path, reply_path: Path) -> "CMakeFilesV1":
         dikt = json.load(path.open())
         return cls.from_dict(dikt, reply_path)
 

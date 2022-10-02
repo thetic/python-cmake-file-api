@@ -7,7 +7,12 @@ from cmake_file_api.kinds.kind import ObjectKind
 
 
 class CMakeToolchainCompilerImplicit(object):
-    __slots__ = ("includeDirectories", "linkDirectories", "linkFrameworkDirectories", "linkLibraries")
+    __slots__ = (
+        "includeDirectories",
+        "linkDirectories",
+        "linkFrameworkDirectories",
+        "linkLibraries",
+    )
 
     def __init__(self):
         self.includeDirectories = []  # type: List[Path]
@@ -19,11 +24,17 @@ class CMakeToolchainCompilerImplicit(object):
     def from_dict(cls, dikt: Dict) -> "CMakeToolchainCompilerImplicit":
         res = cls()
         if "includeDirectories" in dikt:
-            res.includeDirectories.extend(Path(p) for p in dikt["includeDirectories"])
+            res.includeDirectories.extend(
+                Path(p) for p in dikt["includeDirectories"]
+            )
         if "linkDirectories" in dikt:
-            res.linkDirectories.extend(Path(p) for p in dikt["linkDirectories"])
+            res.linkDirectories.extend(
+                Path(p) for p in dikt["linkDirectories"]
+            )
         if "linkFrameworkDirectories" in dikt:
-            res.linkFrameworkDirectories.extend(Path(p) for p in dikt["linkFrameworkDirectories"])
+            res.linkFrameworkDirectories.extend(
+                Path(p) for p in dikt["linkFrameworkDirectories"]
+            )
         if "linkLibraries" in dikt:
             res.linkFrameworkDirectories.extend(dikt["linkLibraries"])
         return res
@@ -32,7 +43,14 @@ class CMakeToolchainCompilerImplicit(object):
 class CMakeToolchainCompiler(object):
     __slots__ = ("id", "path", "target", "version", "implicit")
 
-    def __init__(self, id: Optional[str], path: Optional[Path], target: Optional[str], version: Optional[str], implicit: CMakeToolchainCompilerImplicit):
+    def __init__(
+        self,
+        id: Optional[str],
+        path: Optional[Path],
+        target: Optional[str],
+        version: Optional[str],
+        implicit: CMakeToolchainCompilerImplicit,
+    ):
         self.id = id
         self.path = path
         self.target = target
@@ -45,23 +63,26 @@ class CMakeToolchainCompiler(object):
         path = Path(dikt["path"]) if "path" in dikt else None
         target = dikt.get("target")
         version = dikt.get("version")
-        implicit = CMakeToolchainCompilerImplicit.from_dict(dikt.get("implicit", {}))
+        implicit = CMakeToolchainCompilerImplicit.from_dict(
+            dikt.get("implicit", {})
+        )
         return cls(id, path, target, version, implicit)
 
     def __repr__(self) -> str:
         return "{}(id='{}', path='{}', target='{}', version='{}')".format(
-            type(self).__name__,
-            self.id,
-            self.path,
-            self.target,
-            self.version
+            type(self).__name__, self.id, self.path, self.target, self.version
         )
 
 
 class CMakeToolchain(object):
     __slots__ = ("language", "compiler", "sourceFileExtensions")
 
-    def __init__(self, language: str, compiler: CMakeToolchainCompiler, sourceFileExtensions: Optional[List[str]]):
+    def __init__(
+        self,
+        language: str,
+        compiler: CMakeToolchainCompiler,
+        sourceFileExtensions: Optional[List[str]],
+    ):
         self.language = language
         self.compiler = compiler
         self.sourceFileExtensions = sourceFileExtensions
@@ -76,9 +97,7 @@ class CMakeToolchain(object):
 
     def __repr__(self) -> str:
         return "{}(language='{}', compiler='{}')".format(
-            type(self).__name__,
-            self.language,
-            self.compiler
+            type(self).__name__, self.language, self.compiler
         )
 
 
@@ -87,14 +106,18 @@ class ToolchainsV1(object):
 
     __slots__ = ("version", "toolchains")
 
-    def __init__(self, version: VersionMajorMinor, toolchains: List[CMakeToolchain]):
+    def __init__(
+        self, version: VersionMajorMinor, toolchains: List[CMakeToolchain]
+    ):
         self.version = version
         self.toolchains = toolchains
 
     @classmethod
     def from_dict(cls, dikt: Dict, reply_path: Path) -> "ToolchainsV1":
         version = VersionMajorMinor.from_dict(dikt["version"])
-        toolchains = list(CMakeToolchain.from_dict(cmi) for cmi in dikt["toolchains"])
+        toolchains = list(
+            CMakeToolchain.from_dict(cmi) for cmi in dikt["toolchains"]
+        )
         return cls(version, toolchains)
 
     @classmethod

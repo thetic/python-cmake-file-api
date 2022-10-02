@@ -8,7 +8,7 @@ from cmake_file_api.kinds.kind import ObjectKind
 
 
 class CMakeFileApiV1(object):
-    __slots__ = ("_build_path", )
+    __slots__ = ("_build_path",)
 
     def __init__(self, build_path: Path):
         self._build_path = build_path
@@ -17,18 +17,24 @@ class CMakeFileApiV1(object):
         result = self._build_path / ".cmake" / "api" / "v1" / "query"
         result.mkdir(parents=True, exist_ok=True)
         if not result.is_dir():
-            raise NotADirectoryError("Query path '{}' is not a directory".format(result))
+            raise NotADirectoryError(
+                "Query path '{}' is not a directory".format(result)
+            )
         return result
 
     def _create_reply_path(self) -> Path:
         result = self._build_path / ".cmake" / "api" / "v1" / "reply"
         result.mkdir(parents=True, exist_ok=True)
         if not result.is_dir():
-            raise NotADirectoryError("Reply path '{}' is not a directory".format(result))
+            raise NotADirectoryError(
+                "Reply path '{}' is not a directory".format(result)
+            )
         return result
 
     @staticmethod
-    def _instrument_query_path(query_path: Path, kind: ObjectKind, kind_version: int) -> None:
+    def _instrument_query_path(
+        query_path: Path, kind: ObjectKind, kind_version: int
+    ) -> None:
         (query_path / "{}-v{}".format(kind.value, kind_version)).touch()
 
     @staticmethod
@@ -55,7 +61,10 @@ class CMakeFileApiV1(object):
     def _index(self, reply_path: Path):
         index_path = self._find_index_path(reply_path)
         if index_path is None:
-            raise CMakeException("CMake did not generate index file. Maybe your cmake version is too old?")
+            raise CMakeException(
+                "CMake did not generate index file. "
+                "Maybe your cmake version is too old?"
+            )
 
         index_api = INDEX_API.get(1)
         if not index_api:
@@ -83,10 +92,15 @@ class CMakeFileApiV1(object):
         index = self._index(reply_path)
 
         result = {}
-        for (kind, kind_version), reply_file_ref in index.reply.stateless.items():
+        for (
+            kind,
+            kind_version,
+        ), reply_file_ref in index.reply.stateless.items():
             api = OBJECT_KINDS_API.get(kind, {}).get(kind_version, None)
             if api is None:
                 continue
-            kind_data = api.from_path(reply_path / str(reply_file_ref.jsonFile), reply_path)
+            kind_data = api.from_path(
+                reply_path / str(reply_file_ref.jsonFile), reply_path
+            )
             result.setdefault(kind, {})[kind_version] = kind_data
         return result
